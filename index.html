@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<main style="width:40%;margin:0 auto;">
+    <section id="calc">
+        <div class="calculations">
+            <div class="operations-area">
+                <p class="operations"></p>
+            </div>
+            <div class="input-area">
+                <input class="calc-input" value="0" readonly />
+            </div>
+        </div>
+        <div class="buttons">
+            <button data-val="pow2" >x<sup>2</sup></button>
+            <button data-val="sqrt" >√</button>
+            <button data-val="add_memory" >M+</button>
+            <button data-val="show_memory" >M</button>
+
+            <button data-val="ce" >CE</button>
+            <button data-val="c" >C</button>
+            <button data-val="backspace" class="btn-backspace"></button>
+            <button data-val="divide" >/</button>
+            <button data-val="7" >7</button>
+            <button data-val="8" >8</button>
+            <button data-val="9" >9</button>
+            <button data-val="multiply" >x</button>
+            <button data-val="4" >4</button>
+            <button data-val="5" >5</button>
+            <button data-val="6" >6</button>
+            <button data-val="substract" >-</button>
+
+            <button data-val="1" >1</button>
+            <button data-val="2" >2</button>
+            <button data-val="3" >3</button>
+            <button data-val="add" >+</button>
+
+            <button data-val="change_sign" >+/-</button>
+            <button data-val="0" >0</button>
+            <button data-val="dot" >.</button>
+            <button data-val="equality" >=</button>
+        </div>
+        <div class="memory-calc">
+            <span class="close-memory-calc"><img src="img/close.png" alt="close"></span>
+            <!-- Memory cells -->
+        </div>
+    </section>
+    <script src="script.js"></script>
+</main>
+</body>
+</html>

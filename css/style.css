@@ -1,0 +1,178 @@
+/*
+    Created on : 2017-02-01, 18:11:11
+    Author     : patev
+*/
+/************
+* Reset styles
+*************/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#calc {
+  width: 320px;
+  height: auto;
+  font-size: 18px;
+  position: relative;
+}
+#calc * {
+  font-family: "Arial Black", Gadget, sans-serif;
+}
+#calc .buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+#calc .buttons button {
+  background-color: #333;
+  font-weight: bold;
+  font-size: 1em;
+  color: #eee;
+  border: none;
+  width: 80px;
+  height: 50px;
+  padding: 0;
+}
+#calc .buttons button:hover {
+  background-color: #444;
+}
+#calc .buttons .btn-backspace {
+  background-image: url("../img/backspace.png");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#calc .calculations {
+  background-color: #000000;
+}
+#calc .calculations .operations-area {
+  font-size: 0.8em;
+  text-align: right;
+  color: white;
+  padding: 10px;
+}
+#calc .calculations .operations-area .operations {
+  white-space: nowrap;
+  overflow: hidden;
+  height: 14px;
+}
+#calc .calculations .input-area {
+  padding: 0 10px 20px 20px;
+}
+#calc .calculations .input-area .calc-input {
+  width: 100%;
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 1.75em;
+  text-align: right;
+}
+#calc .calculations .input-area .calc-input:focus {
+  box-shadow: inherit;
+  border: none;
+  outline: none;
+}
+#calc .memory-calc {
+  display: none;
+  background: rgba(51, 51, 51, 0.7);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  padding: 60px 10px;
+  overflow: auto;
+}
+#calc .memory-calc .close-memory-calc {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 10px;
+  font-size: 2em;
+  color: #F44336;
+}
+#calc .memory-calc .close-memory-calc img {
+  width: 100%;
+  height: 10;
+}
+#calc .memory-calc .single-cell {
+  display: block;
+  position: relative;
+  background: rgba(17, 17, 17, 0.9);
+  padding: 10px;
+  color: #ffffff;
+  margin-top: 2px;
+}
+#calc .memory-calc .single-cell:hover {
+  background: rgba(5, 5, 5, 0.9);
+}
+#calc .memory-calc .single-cell .remove-single-cell {
+  color: red;
+  position: absolute;
+  right: 10px;
+}
+#calc .memory-calc .single-cell .memory-result {
+  font-size: 1.5em;
+}
+#calc .show-elem {
+  display: block;
+  animation: showElem 1000ms;
+  opacity: 1;
+}
+
+@keyframes showElem {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
