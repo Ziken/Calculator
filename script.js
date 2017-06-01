@@ -1,6 +1,3 @@
-/**
- * Created by patev on 31.01.2017.
- */
 Object.prototype.calc  = function() {
   "use strict";
   let self = {};
@@ -28,6 +25,7 @@ Object.prototype.calc  = function() {
   self.init = () => {
     self.triggerButtons();
     self.memoryInit();
+    self.keyboardInit();
   };
   self.getInputVal  = () => {
     return parseFloat(self.calcInput.value);
@@ -51,17 +49,21 @@ Object.prototype.calc  = function() {
     }
   };
   self.buttonClick = (evt) => {
-    let value = evt.target.dataset.val;
+    let action = evt.target.dataset.val || 0;
+    self.actionCalc(action);
+  }
+  self.actionCalc = (action) => {
+    //let value = evt.target.dataset.val;
     if (self.isResult) {
       let currentVal = self.getInputVal();
-      let conditon = Number.isFinite(currentVal) && (Number.isSafeInteger(currentVal) || self.isFloat(currentVal));
-      if (!conditon) {
+      let condition = Number.isFinite(currentVal) && (Number.isSafeInteger(currentVal) || self.isFloat(currentVal));
+      if (!condition) {
         self.setInputVal(0);
       }
       self.clearOperations();
     }
-
-    switch (value) {
+    console.log(action);
+    switch (action) {
       case "0":
       case "1":
       case "2":
@@ -73,7 +75,7 @@ Object.prototype.calc  = function() {
       case "8":
       case "9":
         self.clearLastResult();
-        self.addNumberToInput(value); break;
+        self.addNumberToInput(action); break;
       case "dot":
         self.clearLastResult();
         self.addDotToInput(); break;
@@ -82,9 +84,9 @@ Object.prototype.calc  = function() {
         self.changeSignValueInput(); break;
       case "backspace":
         self.removeFirstChar(); break;
-      case "c":
-        self.clearInput(); break;
       case "ce":
+        self.clearInput(); break;
+      case "c":
         self.clearCalc(); break;
       case "multiply":
         self.saveOperation(self.signOperations.multiply); break;
@@ -105,20 +107,19 @@ Object.prototype.calc  = function() {
       case "add_memory":
         self.addCellToMemory();
       default:
-
+        return true;
     }
   };
   self.addNumberToInput = (val) => {
     let valOfInput = self.getInputValAsString();
     let lenInput = valOfInput.length;
-    if (lenInput == 1 && valOfInput == 0) {
+    if (lenInput == 1 && valOfInput == 0) {//if input of calculator is empty (is only 0)
       self.setInputVal(val);
-    } else if (lenInput > 8) {
-      return false;
+    } else if (lenInput > 8) {//limit of digits
+      return true;
     } else {
       self.setInputVal(valOfInput+ val);
     }
-
   };
   self.addDotToInput = () => {
     if(!/\./.test(self.getInputVal())) {
@@ -205,10 +206,10 @@ Object.prototype.calc  = function() {
     let [tempArray,tempPos] = [[],0];
     let [sOperPrev, sOperNext] = [parseFloat(singleOperations[pos-1]),parseFloat(singleOperations[pos+1])];
     switch (sign) {
-      case "x": singleOperations[pos+1] = sOperPrev * sOperNext; break;
-      case "/": singleOperations[pos+1] = sOperPrev / sOperNext; break;
-      case "+": singleOperations[pos+1] = sOperPrev + sOperNext; break;
-      case "-": singleOperations[pos+1] = sOperPrev - sOperNext; break;
+      case self.signOperations.multiply: singleOperations[pos+1] = sOperPrev * sOperNext; break;
+      case self.signOperations.divide: singleOperations[pos+1] = sOperPrev / sOperNext; break;
+      case self.signOperations.add: singleOperations[pos+1] = sOperPrev + sOperNext; break;
+      case self.signOperations.substract: singleOperations[pos+1] = sOperPrev - sOperNext; break;
     }
     tempPos = (pos-2)<0?0:pos-1;
     tempArray = tempArray.concat(singleOperations.slice(0,tempPos));
@@ -296,6 +297,53 @@ Object.prototype.calc  = function() {
     self.hideMemory();
   };
 
+  /** keyboard things */
+  self.keyboardInit = () => {
+    self.e.addEventListener("keydown",self.keyboardListener,false);
+  }
+  self.keyboardListener = (evt) => {
+    let keyId = evt.keyCode;
+    console.log(keyId);
+    switch (keyId) {
+      case 8://backspace
+        self.actionCalc("backspace"); break;
+      case 13://enter
+        self.actionCalc("equality"); break;
+      case 27://esc
+        self.actionCalc("c"); break;
+      case 48:
+      case 49:
+      case 50:
+      case 51:
+      case 52:
+      case 53:
+      case 54:
+      case 55:
+      case 56:
+      case 57:
+      case 96:
+      case 97:
+      case 98:
+      case 99:
+      case 100:
+      case 101:
+      case 102:
+      case 103:
+      case 104:
+      case 105:
+        self.actionCalc(""+(keyId%48)); break;
+      case 106:
+        self.actionCalc("multiply"); break;
+      case 107:
+        self.actionCalc("add"); break;
+      case 109:
+        self.actionCalc("substract"); break;
+      case 111:
+        self.actionCalc("divide"); break;
+      default:
+        return true;
+    }
+  }
   return self.init();
 };
 
