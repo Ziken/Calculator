@@ -81,6 +81,7 @@ table {
   width: 80px;
   height: 50px;
   padding: 0;
+  cursor: pointer;
 }
 #calc .buttons button:hover {
   background-color: #444;
@@ -93,15 +94,37 @@ table {
 #calc .calculations {
   background-color: #000000;
 }
-#calc .calculations .operations-area {
-  font-size: 0.8em;
-  text-align: right;
+#calc .calculations .group-operations {
   color: white;
+}
+#calc .calculations .group-operations .arrow-left, #calc .calculations .group-operations .arrow-right {
+  width: 5%;
+  display: block;
+  color: #2196f3;
+  float: left;
+  padding: 7px 2px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  -ms-user-select: none;
+  cursor: pointer;
+}
+#calc .calculations .group-operations .operations-area {
+  width: 90%;
+  float: left;
+  position: relative;
+  font-size: 0.8em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: right;
+  margin: 9px 0px;
   padding: 10px;
 }
-#calc .calculations .operations-area .operations {
-  white-space: nowrap;
-  overflow: hidden;
+#calc .calculations .group-operations .operations-area .operations {
+  top: 0;
+  left: 0;
+  position: absolute;
   height: 14px;
 }
 #calc .calculations .input-area {
@@ -138,6 +161,7 @@ table {
   padding: 10px;
   font-size: 2em;
   color: #F44336;
+  cursor: pointer;
 }
 #calc .memory-calc .close-memory-calc img {
   width: 100%;
@@ -155,6 +179,7 @@ table {
   background: rgba(5, 5, 5, 0.9);
 }
 #calc .memory-calc .single-cell .remove-single-cell {
+  cursor: pointer;
   color: red;
   position: absolute;
   right: 10px;

@@ -7,13 +7,15 @@ Object.prototype.calc  = function() {
   self.buttons = [].slice.call(nodeList); //convert into array
   self.operations = self.e.querySelector(".operations");
   self.calcInput = self.e.querySelector(".calc-input");
+  self.arrowLeft = self.e.querySelector(".arrow-left");
+  self.arrowRight = self.e.querySelector(".arrow-right");
+  self.movingOperationArrows = true;
 
   self.memoryCont = self.e.querySelector(".memory-calc");
   self.memoryValues = new Set();
   self.whatCount = "";
   self.amountOperations = 0;
   self.isResult = false;
-
   self.signOperations = {
     add: "+",
     substract: "-",
@@ -26,6 +28,13 @@ Object.prototype.calc  = function() {
     self.triggerButtons();
     self.memoryInit();
     self.keyboardInit();
+
+    self.arrowLeft.addEventListener("click",self.moveOperationsBlockLeft,false);
+    self.arrowRight.addEventListener("click",self.moveOperationsBlockRight,false);
+
+    self.e.querySelector(".calculations").addEventListener("click",function(){
+	     self.calcInput.focus();
+  },false);
   };
   self.getInputVal  = () => {
     return parseFloat(self.calcInput.value);
@@ -62,7 +71,6 @@ Object.prototype.calc  = function() {
       }
       self.clearOperations();
     }
-    console.log(action);
     switch (action) {
       case "0":
       case "1":
@@ -146,6 +154,7 @@ Object.prototype.calc  = function() {
   };
   self.clearOperations = () => {
     self.operations.innerHTML = "";
+    self.operations.style.left = 0;
     self.whatCount = "";
     self.amountOperations = 0;
   };
@@ -236,12 +245,83 @@ Object.prototype.calc  = function() {
   };
   self.isFloat = (n) => {
     return n === +n && n !== (n|0);
-    // Unary operator +,-. It means it convert variable to number (but "-" also negative its);
   };
+
+  self.moveOperationsBlockLeft = () => {
+    if(!self.movingOperationArrows) return true;
+    let widthOfBlock = +window.getComputedStyle(self.operations).width.split("px")[0] || 0;
+    let leftStyle = +window.getComputedStyle(self.operations).left.split("px")[0] || 0;
+    let offsetLeft = 0;
+    let a = widthOfBlock%240;
+
+    if( (widthOfBlock-a) == leftStyle) offsetLeft = leftStyle + a;
+    else offsetLeft = leftStyle+240;
+
+    if(offsetLeft <= 0) {
+      self.movingOperationArrows = false;
+      self.animate(self.operations, "left", offsetLeft + "px", 300,function(){self.movingOperationArrows=true;});
+    }
+
+
+  }
+  self.moveOperationsBlockRight = () => {
+    if(!self.movingOperationArrows) return true;
+    let widthOfBlock = +window.getComputedStyle(self.operations).width.split("px")[0] || 0;
+    let leftStyle = +window.getComputedStyle(self.operations).left.split("px")[0] || 0;
+    let offsetLeft = 0;
+    let a = widthOfBlock%240;
+
+    if( (widthOfBlock-a) == leftStyle) offsetLeft = leftStyle + a;
+    else offsetLeft = leftStyle-240;
+
+    if(widthOfBlock>285 && -1*offsetLeft <= widthOfBlock) {
+      self.movingOperationArrows=false;
+      self.animate(self.operations, "left", offsetLeft + "px", 300,function(){self.movingOperationArrows=true;});
+    }
+
+  }
+  self.animate =  (elem,property, aim, duration=1000,complete=function(){} ) => {
+    let startTime, direction, end;
+    let start = +window.getComputedStyle(elem)[property].split("px")[0] || 0;
+    let unit = aim.split(/[0-9\s]+/)[1];
+    let destination = aim.split(/[a-zA-Z\s]+/)[0];
+
+    if(destination > 0 && start>0)
+    {
+      if ( (destination-start) > 0) {
+        end = destination;
+        direction = -1;
+      } else {
+        end = start;
+        direction = 1;
+      }
+    } else {
+      end = destination-start;
+      direction = -1;
+    }
+    let animate_h = (timestamp) => {
+      let runTime = timestamp-startTime;
+      let progress = runTime/duration;
+      progress = Math.min(1,progress);
+
+      elem.style[property] = (start - (progress*end).toFixed(2)*direction) + unit;
+      if(runTime < duration)
+        window.requestAnimationFrame(animate_h);
+      else complete();
+    };
+
+    window.requestAnimationFrame((timestamp) => {
+      startTime = timestamp;
+      animate_h(timestamp)
+    });
+  }
   /** Memory things **/
   self.memoryInit = () => {
     let closeMemoryBtn = self.memoryCont.querySelector(".close-memory-calc");
     closeMemoryBtn.addEventListener("click",self.hideMemory,false);
+    self.memoryCont.addEventListener("click",function(){
+    	self.calcInput.focus();
+    },false);
   };
   self.showMemory = () => {
     self.memoryCont.classList.add("show-elem");
@@ -303,7 +383,6 @@ Object.prototype.calc  = function() {
   }
   self.keyboardListener = (evt) => {
     let keyId = evt.keyCode;
-    console.log(keyId);
     switch (keyId) {
       case 8://backspace
         self.actionCalc("backspace"); break;
@@ -338,8 +417,12 @@ Object.prototype.calc  = function() {
         self.actionCalc("add"); break;
       case 109:
         self.actionCalc("substract"); break;
+      case 110:
+        self.addDotToInput(); break;
       case 111:
         self.actionCalc("divide"); break;
+      case 190:
+        self.addDotToInput(); break;
       default:
         return true;
     }

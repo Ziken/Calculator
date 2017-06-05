@@ -2,9 +2,9 @@
     Created on : 2017-02-01, 18:11:11
     Author     : patev
 */
-//******************
+// ******************
 // Functions
-//******************
+// ******************
 @mixin flexbox() {
   display: -webkit-box;
   display: -moz-box;
@@ -65,9 +65,9 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-//******************
+// ******************
 // SCSS
-//******************
+// ******************
 $button_width: 80;
 $duraton_anim: 1000;//ms
 
@@ -96,6 +96,7 @@ $duraton_anim: 1000;//ms
                 width: 80px;
                 height: 50px;
                 padding:0;
+                cursor: pointer;
                     &:hover {
                         background-color: #444;
                     }
@@ -109,19 +110,41 @@ $duraton_anim: 1000;//ms
         }
     .calculations {
         background-color: #000000;
-            .operations-area {
-                font-size:0.8em;
-                text-align: right;
+            .group-operations {
                 color: white;
-                padding:10px;
-                    .operations {
-                        white-space: nowrap;
-                        overflow: hidden;
-                        height: 14px;
-                    }
+                .arrow-left, .arrow-right {
+                    width: 5%;
+                    display: block;
+                    color: #2196f3;
+                    float: left;
+                    padding: 7px 2px;
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -o-user-select: none;
+                    -ms-user-select: none;
+                    cursor: pointer;
+                }
+                .operations-area {
+                    width: 90%;
+                    float: left;
+                    position: relative;
+                    font-size: 0.8em;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-align: right;
+                    margin: 9px 0px;
+                    padding: 10px;
+                        .operations {
+                            top: 0;
+                            left: 0;
+                            position: absolute;
+                            height: 14px;
+                        }
+                }
             }
             .input-area {
-                padding: 0 10px 20px 20px;;
+                padding: 0 10px 20px 20px;
                     .calc-input {
                         width:100%;
                         background-color: transparent;
@@ -154,6 +177,7 @@ $duraton_anim: 1000;//ms
                 padding: 10px;
                 font-size: 2em;
                 color: #F44336;
+                cursor: pointer;
                   img {
                     width:100%;
                     height: 10
@@ -170,6 +194,7 @@ $duraton_anim: 1000;//ms
                         background: rgba(5, 5, 5, 0.9);
                     }
                     .remove-single-cell {
+                        cursor: pointer;
                         color: red;
                         position: absolute;
                         right: 10px;
