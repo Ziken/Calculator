@@ -1,7 +1,7 @@
-Object.prototype.calc  = function() {
+var Calculator = function (elem) {
   "use strict";
   let self = {};
-  self.e = this;
+  self.e = elem;
   self.containerButtons = self.e.querySelector(".buttons");
   let nodeList = self.containerButtons.querySelectorAll("button");
   self.buttons = [].slice.call(nodeList); //convert into array
@@ -430,5 +430,5 @@ Object.prototype.calc  = function() {
   return self.init();
 };
 
-var calc = document.querySelector("#calc");
-calc.calc();
+var elem = document.querySelector("#calc");
+let calc = new Calculator(elem);
