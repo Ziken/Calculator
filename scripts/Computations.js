@@ -22,11 +22,6 @@ const Computations = function () {
 
         return singleOperations[0];
     };
-
-    /**
-
-
-    */
     /**
     * Compute simple operations and remove it form array. sign1 and sign2 is either addition, subtraction or division, multiplication
     * @param {Array}  arr array of operations like [1,'+',2,...]
