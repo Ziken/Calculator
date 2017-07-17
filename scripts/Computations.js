@@ -12,28 +12,64 @@ const Computations = function () {
     /**
     * Calculate result form string
     * @param {String} operations simple operations saved in string
+    * @return {Number} result of operation
     */
     const calculateResult = (operations = '') => {
         let singleOperations = operations.split(' ');
-        //compute multiplication and division
-        singleOperations = orderOfOperations(singleOperations,SIGNS.multi,SIGNS.div);
-        //compute addition and substraction
-        singleOperations = orderOfOperations(singleOperations,SIGNS.add,SIGNS.sub);
-
+        singleOperations = getIntoParentheses(singleOperations);
         return singleOperations[0];
     };
-
     /**
-
-
+    * Compute operations contains parentheses
+    * @param {Array} ArrOfOperations split array like [1,+,2,...]
+    * @return array of one element -> result
     */
+    let getIntoParentheses = ( ArrOfOperations ) => {
+        let arr = [...ArrOfOperations];
+        const arrOpenP = [];
+        if ( arr.indexOf('(') == -1 ) return orderOfOperations(arr);
+
+        for ( let i = 0; i < arr.length; i++ ) {
+            let currentChar = arr[i];
+            if (currentChar == '(') {
+                arrOpenP.push(i);
+            } else if (currentChar == ')') {
+                let lastOpenP = arrOpenP.pop();
+                let r = orderOfOperations(arr.slice(lastOpenP+1,i) )[0];
+
+                arr[lastOpenP] = r;
+
+                arr = arr.filter((v,index) => {
+                    if (index > lastOpenP && index <=i ) return false;
+                    return true;
+                });
+                i = lastOpenP;
+            }
+        }
+        if ( arr.length > 1 ) return orderOfOperations(arr);
+        return arr;
+    };
+    /**
+    * Compute operations which don't contain parentheses
+    * @param {Array} arr split array like [1,+,2,...] which doesn't contain parentheses
+    * @return result of these operations
+    */
+    const orderOfOperations = (arr) => {
+        let singleOperations = [...arr];
+        //first make division and multiplication
+        singleOperations = templateForMakingOperations(singleOperations,SIGNS.multi,SIGNS.div);
+        //then addition and substraction
+        singleOperations = templateForMakingOperations(singleOperations,SIGNS.add,SIGNS.sub);
+        return singleOperations;
+    };
     /**
     * Compute simple operations and remove it form array. sign1 and sign2 is either addition, subtraction or division, multiplication
     * @param {Array}  arr array of operations like [1,'+',2,...]
-    * @param {String} sign1 first operation sign
-    * @param {String} sign1 second operation sign
+    * @param {String} sign1 first operation sign like '+'
+    * @param {String} sign1 second operation sign like '-'
     */
-    let orderOfOperations = (arr, sign1, sign2) => {
+    const templateForMakingOperations = (arr, sign1, sign2) => {
+
         let sign1Pos = 0;
         let sign2Pos = 0;
         let arrOfOperations = [...arr];
@@ -41,25 +77,24 @@ const Computations = function () {
         while ( true ) {
             sign1Pos = arrOfOperations.indexOf(sign1, sign1Pos);
             sign2Pos = arrOfOperations.indexOf(sign2, sign2Pos);
-
             // what is first
-            if ( sign1Pos > sign2Pos && sign2Pos == -1 ) {
-                //sign1 first eg. division
-                arrOfOperations = computeSimpleOperation(arrOfOperations,sign1Pos);
-            } else if (sign2Pos > sign1Pos && sign1Pos == -1 ) {
-                //sign2 first eg. multiplication
-                arrOfOperations = computeSimpleOperation(arrOfOperations,sign2Pos);
-            } else {
+            if ( sign1Pos == -1 && sign2Pos == -1 ) {
                 // no operations with these signs eg. division and multiplication
                 // remove empty fields
                 arrOfOperations = arrOfOperations.filter(v => v);
                 break;
+            } else if ( sign1Pos < sign2Pos && sign1Pos != -1 || sign2Pos == -1 ) {
+                //sign1 first eg. division
+                arrOfOperations = computeSimpleOperation(arrOfOperations,sign1Pos);
+            } else if ( sign2Pos < sign1Pos && sign2Pos != -1 || sign1Pos == -1 ) {
+                //sign2 first eg. multiplication
+                arrOfOperations = computeSimpleOperation(arrOfOperations,sign2Pos);
             }
         }
         return arrOfOperations;
     };
     /**
-    * Calculate single operation
+    * Calculate single operation eg. 1 + 2
     * @param {Array}  arrOfOperations array of operations like [1,'+',2,...]
     * @param {Number} pos position of sign
     */
