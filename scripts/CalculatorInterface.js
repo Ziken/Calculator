@@ -12,8 +12,11 @@ const CalculatorInterface = function (calcHandler) {
         add: '+',   // addition
         sub: '-'    // subtraction
     };
+<<<<<<< HEAD
     const memoryCont = calcHandler.querySelector('.memory-calc');
     const memoryValues = new Set();
+=======
+>>>>>>> calc-interface
     let whatCount = '';
     let amountOperations = 0;
     let isResult = false;
