@@ -3,29 +3,31 @@
  * @param {Object} calcElement DOM element of calculator
  * @param {Object} sendActionTo function which gets action of keyboard
 */
-const Keyboard = function (calcElement, sendActionTo) {
+const Keyboard = function ( calcElement ) {
     'use strict';
     const containerButtons  =    calcElement.querySelector('.buttons');
     const buttons           =    Array.from(containerButtons.querySelectorAll('button'));
+    let sendActionTo        =    ()=>{};
 
-    let init = () => {
+    const init = () => {
         triggerVirtualButtons();
         triggerPhysicalButtons();
     };
-    let triggerPhysicalButtons = () => {
+    const triggerPhysicalButtons = () => {
         calcElement.addEventListener('keydown',physicalKeyboardListener,false);
     };
-    let triggerVirtualButtons = () => {
+    const triggerVirtualButtons = () => {
         buttons.forEach( ( btn ) => {
             btn.addEventListener('click', virtualKeyboardListener, false);
-            let img = btn.querySelector('img');
+            const img = btn.querySelector('img');
             if ( img !== null ) {
                 img.removeEventListener('click', virtualKeyboardListener, false);
             }//if
         });
     };
-    let physicalKeyboardListener = ( evt ) => {
-        let keyId = evt.keyCode || 0;
+
+    const physicalKeyboardListener = ( evt ) => {
+        const keyId = evt.keyCode || 0;
         let action = '';
         switch ( keyId ) {
             case 8: //backspace
@@ -83,10 +85,16 @@ const Keyboard = function (calcElement, sendActionTo) {
         }
         sendActionTo(action);
     };
-    let virtualKeyboardListener = (evt) => {
-        let action = evt.target.dataset.val || '';
+    const virtualKeyboardListener = (evt) => {
+        const action = evt.target.dataset.val || '';
         sendActionTo(action);
+    };
+    const setActionListener = ( func ) => {
+        sendActionTo = func;
     };
 
     init();
+    return {
+        setActionListener
+    };
 };
