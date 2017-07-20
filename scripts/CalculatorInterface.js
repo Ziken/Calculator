@@ -15,9 +15,13 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
         add: '+',   // addition
         sub: '-'    // subtraction
     };
+    const BOOL = { //store all booleans in one variable
+        isResult: false,
+        wasParenthesisUsed: false,
+        cannotUseParenthesis: false
+    };
+    const operations = [];
 
-    let whatCount = '';
-    let isResult = false;
 
     const init = () => {
         keyboardObj.setActionListener(executeCalcAction);
@@ -26,7 +30,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
         return Number(calcInput.value);
     };
     const getInputValueAsString = () => {
-        return getInputValue().toString();
+        return calcInput.value;
     };
     const setInputVal = ( val = '' ) => {
         let value = val;
@@ -48,7 +52,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
     };
 
     const addDotToInput = () => {
-        const value = getInputValue();
+        const value = getInputValueAsString();
         if ( !/\./.test(value) ) { //if dot has not used in this number
             setInputVal(value + '.');
         }
@@ -108,25 +112,25 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
                 clearInput();
                 break;
             case 'c':
-                clearCalc();
+                //clearCalc();
                 break;
             case 'multiply'://TODO function saveOperation
-                //saveOperation(SIGNS.multi);
+                saveOperation(SIGNS.multi);
                 break;
             case 'divide':
-                //saveOperation(SIGNS.div);
+                saveOperation(SIGNS.div);
                 break;
             case 'add':
-                //(SIGNS.add);
+                saveOperation(SIGNS.add);
                 break;
             case 'substract':
-                //saveOperation(SIGNS.sub);
+                saveOperation(SIGNS.sub);
                 break;
             case 'left_p'://FIXME replace it for parenthesis
-                //sqrtOperation();
+                addParenthesis(action);
                 break;
             case 'right_p'://FIXME replace it for parenthesis
-                //valueSquared();
+                addParenthesis(action);
                 break;
             case 'equality':
                 //countOperation();
@@ -140,6 +144,35 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
             default:
 
         }
+    };
+    const addParenthesis = (type) => {
+        if ( type === 'left_p' ) {
+            operations.push('(');
+        } else if ( type === 'right_p' ) {
+            saveOperation('');
+            BOOL.wasParenthesisUsed = true;
+            operations.push(')');
+        }
+        refreshOperationsContainer();
+    };
+    const saveOperation = ( sign = '' ) => {
+        //isResult = false;
+        if ( BOOL.wasParenthesisUsed ) {
+            BOOL.wasParenthesisUsed = false;
+            if ( sign != '' )
+                operations.push(sign);
+        } else {
+            operations.push(getInputValue());
+            if ( sign != '' ) {
+                operations.push(sign);
+            }
+            clearInput();
+        }
+        refreshOperationsContainer();
+
+    };
+    const refreshOperationsContainer = () => {
+        operationsContainer.innerHTML = operations.join(' '); //convert into string
     };
 
     init();

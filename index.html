@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Kalkulator</title>
+    <title>Test Calculator</title>
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -21,8 +21,8 @@
             </div>
         </div>
         <div class="buttons">
-            <button data-val="pow2" >x<sup>2</sup></button>
-            <button data-val="sqrt" >√</button>
+            <button data-val="left_p" > ( </button>
+            <button data-val="right_p" > ) </button>
             <button data-val="add_memory" >M+</button>
             <button data-val="show_memory" >M</button>
 
@@ -54,7 +54,12 @@
             <!-- Memory cells -->
         </div>
     </section>
-    <script src="script.js"></script>
+    <script src="scripts/Keyboard.js"></script>
+    <script src="scripts/Computations.js"></script>
+    <script src="scripts/CalculatorInterface.js"></script>
+    <script src="scripts/MemoryCalculator.js"></script>
+    <script src="scripts/app.js"></script>
+
 </main>
 </body>
 </html>
