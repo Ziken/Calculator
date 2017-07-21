@@ -10,23 +10,25 @@ const Computations = function () {
         sub: '-'    // subtraction
     };
     /**
-    * Calculate result form string
-    * @param {String} operations simple operations saved in string
+    * Public method, calculate result form array of operations
+    * @param {Array} operations simple operations saved in array
     * @return {Number} result of operation
     */
-    const calculateResult = (operations = '') => {
-        let singleOperations = operations.split(' ');
+    const calculateResult = (operations = []) => {
+        let singleOperations = [...operations];
         singleOperations = getIntoParentheses(singleOperations);
-        return singleOperations[0];
+
+        return safeResult(singleOperations[0]);
     };
     /**
     * Compute operations contains parentheses
     * @param {Array} ArrOfOperations split array like [1,+,2,...]
     * @return array of one element -> result
     */
-    let getIntoParentheses = ( ArrOfOperations ) => {
+    const getIntoParentheses = ( ArrOfOperations ) => {
         let arr = [...ArrOfOperations];
         const arrOpenP = [];
+        //no parenthesis
         if ( arr.indexOf('(') == -1 ) return orderOfOperations(arr);
 
         for ( let i = 0; i < arr.length; i++ ) {
@@ -46,7 +48,9 @@ const Computations = function () {
                 i = lastOpenP;
             }
         }
+        //no parenthesis, just do simple operations
         if ( arr.length > 1 ) return orderOfOperations(arr);
+
         return arr;
     };
     /**
@@ -56,14 +60,15 @@ const Computations = function () {
     */
     const orderOfOperations = (arr) => {
         let singleOperations = [...arr];
-        //first make division and multiplication
+        //first do division and multiplication
         singleOperations = templateForMakingOperations(singleOperations,SIGNS.multi,SIGNS.div);
         //then addition and substraction
         singleOperations = templateForMakingOperations(singleOperations,SIGNS.add,SIGNS.sub);
         return singleOperations;
     };
     /**
-    * Compute simple operations and remove it form array. sign1 and sign2 is either addition, subtraction or division, multiplication
+    * Compute simple operations and remove it form array.
+      sign1 and sign2 is either addition, subtraction or division, multiplication
     * @param {Array}  arr array of operations like [1,'+',2,...]
     * @param {String} sign1 first operation sign like '+'
     * @param {String} sign1 second operation sign like '-'
@@ -128,6 +133,17 @@ const Computations = function () {
         cpArr[pos]   = '';
         cpArr[pos+1] = result;
         return cpArr;
+    };
+    const safeResult = ( r = 0 ) => {
+        if (
+            Number.isFinite(r) &&
+            Number.isSafeInteger(r) &&
+            !Number.isNaN(r)
+        ) {
+            return r;
+        } else {
+            return 'error';
+        }
     };
 
     return {
