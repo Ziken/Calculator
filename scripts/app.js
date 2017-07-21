@@ -1,8 +1,12 @@
-(function(element){
-    let e = element;
+(function (element) {
+    const calcElement = element;
+    const enableKeyboard = new Keyboard(calcElement);
+    const enableComputations = new Computations();
+    const interface = new CalculatorInterface(calcElement, enableKeyboard, enableComputations);
 
 
-})(document.querySelector('#calc'));
+
+})( document.querySelector('#calc') );
 /*
 Stworzyłbym klasę `Calculator`, która jako parametr w konstruktorze brałaby element, w którym chcemy stworzyć kalkulator.
 

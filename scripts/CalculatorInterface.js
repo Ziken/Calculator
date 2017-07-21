@@ -1,7 +1,7 @@
 /**
 
 */
-const CalculatorInterface = function ( calcHandler, keyboardObj ) {
+const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj ) {
     'use strict';
     const operationsContainer   =    calcHandler.querySelector('.operations');
     const calcInput             =    calcHandler.querySelector('.calc-input');
@@ -18,9 +18,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
     const BOOL = { //store all booleans in one variable
         isResult: false,
         wasParenthesisUsed: false,
-        cannotUseParenthesis: false
+        forbidUseParenthesis: false
     };
     const operations = [];
+
+    let amountOfUsedLeftParenthesis = 0;
 
 
     const init = () => {
@@ -114,7 +116,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
             case 'c':
                 //clearCalc();
                 break;
-            case 'multiply'://TODO function saveOperation
+            case 'multiply':
                 saveOperation(SIGNS.multi);
                 break;
             case 'divide':
@@ -126,14 +128,14 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
             case 'substract':
                 saveOperation(SIGNS.sub);
                 break;
-            case 'left_p'://FIXME replace it for parenthesis
+            case 'left_p':
                 addParenthesis(action);
                 break;
-            case 'right_p'://FIXME replace it for parenthesis
+            case 'right_p':
                 addParenthesis(action);
                 break;
             case 'equality':
-                //countOperation();
+                computeOperations();
                 break;
             case 'show_memory':///FIXME
                 //showMemory();
@@ -145,11 +147,32 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
 
         }
     };
+    const computeOperations = () => {
+
+        if ( amountOfUsedLeftParenthesis == 0 ) {
+            saveOperation('');//add to input current value
+        } else {
+            //auto close parenthesis
+            while ( amountOfUsedLeftParenthesis > 0 ) {
+                addParenthesis('right_p');
+                amountOfUsedLeftParenthesis--;
+            }
+        }
+        const result = computationsObj.calculateResult(operations);
+        clearOperations();
+        setInputVal(result);
+    };
+    const clearOperations = () => {
+        operations.length = 0;
+    };
     const addParenthesis = (type) => {
-        if ( type === 'left_p' ) {
+        if ( type === 'left_p' && !BOOL.forbidUseParenthesis ) {
+            amountOfUsedLeftParenthesis++;
             operations.push('(');
-        } else if ( type === 'right_p' ) {
+        } else if ( type === 'right_p' && amountOfUsedLeftParenthesis > 0 ) {
+            amountOfUsedLeftParenthesis--;
             saveOperation('');
+            BOOL.forbidUseParenthesis = true;
             BOOL.wasParenthesisUsed = true;
             operations.push(')');
         }
@@ -159,11 +182,14 @@ const CalculatorInterface = function ( calcHandler, keyboardObj ) {
         //isResult = false;
         if ( BOOL.wasParenthesisUsed ) {
             BOOL.wasParenthesisUsed = false;
-            if ( sign != '' )
+            if ( sign != '' ) {
                 operations.push(sign);
+                BOOL.forbidUseParenthesis = false;
+            }
         } else {
             operations.push(getInputValue());
-            if ( sign != '' ) {
+            if ( sign != '' ) {//after sign can use parenthesis
+                BOOL.forbidUseParenthesis = false;
                 operations.push(sign);
             }
             clearInput();
