@@ -3,20 +3,24 @@ const MemoryCalculator = function ( calcElement ) {
     'use strict';
     const memoryCont = calcElement.querySelector('.memory-calc');
     const valuesInMemory = new Set();
-
+    const closeMemoryBtn = memoryCont.querySelector('.close-memory-calc');
+    let setValue;
     const init = () => {
-        let closeMemoryBtn = memoryCont.querySelector('.close-memory-calc');
         closeMemoryBtn.addEventListener('click',hideMemoryCont,false);
 
         memoryCont.addEventListener('click',function(){ //FIXME how to handle with calc input
             //calcInput.focus();
         },false); //after close memory container, focus on input
     };
+    const setValueMethod = (method) => {
+        setValue = method;
+    }
     /**
     * public funciton
     */
     const showMemoryCont = () => {
         memoryCont.classList.add('show-elem');
+        closeMemoryBtn.focus();
     };
 
     const hideMemoryCont = () => {
@@ -34,8 +38,8 @@ const MemoryCalculator = function ( calcElement ) {
         valuesInMemory.add(inputVal);
 
         const cell              = document.createElement('P');
-        const resultSpan    = document.createElement('SPAN');
-        const removeCellSpan         = document.querySelector('SPAN');
+        const resultSpan        = document.createElement('SPAN');
+        const removeCellSpan    = document.createElement('SPAN');
         const resultNode        = document.createTextNode(inputVal);
         const closeTextNode     = document.createTextNode('x');
 
@@ -48,6 +52,7 @@ const MemoryCalculator = function ( calcElement ) {
         resultSpan.appendChild(resultNode);
 
         removeCellSpan.classList.add('remove-single-cell');
+        removeCellSpan.setAttribute('tabindex', 0);
         removeCellSpan.appendChild(closeTextNode);
         removeCellSpan.addEventListener('click', removeSingleCell, false);
 
@@ -71,13 +76,14 @@ const MemoryCalculator = function ( calcElement ) {
             const parent = evt.target.parentNode;
             value = parent.dataset.value;
         }
-        //setInputVal(value); //FIXME add function to add val
+        setValue(value);
         hideMemoryCont();
     };
 
     init();
     return {
         addCellToMemory,
-        showMemoryCont
+        showMemoryCont,
+        setValueMethod
     };
 };

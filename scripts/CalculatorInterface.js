@@ -1,7 +1,7 @@
 /**
 
 */
-const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj ) {
+const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj, memoryObj ) {
     'use strict';
     const operationsContainer   =    calcHandler.querySelector('.operations');
     const calcInput             =    calcHandler.querySelector('.calc-input');
@@ -27,6 +27,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
 
     const init = () => {
         keyboardObj.setActionListener(executeCalcAction);
+        memoryObj.setValueMethod(setInputVal);
     };
     const getInputValue  = () => {
         return Number(calcInput.value);
@@ -114,7 +115,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
                 clearInput();
                 break;
             case 'c':
-                //clearCalc();
+                clearCalc();
                 break;
             case 'multiply':
                 saveOperation(SIGNS.multi);
@@ -138,10 +139,10 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
                 computeOperations();
                 break;
             case 'show_memory':///FIXME
-                //showMemory();
+                showMemoryContainer();
                 break;
             case 'add_memory'://FIXME
-                //addCellToMemory();
+                addValueToMemory();
                 break;
             default:
 
@@ -158,12 +159,22 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
                 amountOfUsedLeftParenthesis--;
             }
         }
+        refreshOperationsContainer();
         const result = computationsObj.calculateResult(operations);
         clearOperations();
         setInputVal(result);
     };
     const clearOperations = () => {
         operations.length = 0;
+    };
+    const clearCalc = () => {
+        clearOperations();
+        clearInput();
+        refreshOperationsContainer();
+        //reset varabke bool to default
+        Object.entries(BOOL).forEach( ( [key] ) => {
+            BOOL[key] = false;
+        });
     };
     const addParenthesis = (type) => {
         if ( type === 'left_p' && !BOOL.forbidUseParenthesis ) {
@@ -199,6 +210,13 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     };
     const refreshOperationsContainer = () => {
         operationsContainer.innerHTML = operations.join(' '); //convert into string
+    };
+    const showMemoryContainer = () => {
+        memoryObj.showMemoryCont();
+    };
+    const addValueToMemory = () => {
+        const val = getInputValue();
+        memoryObj.addCellToMemory(val);
     };
 
     init();

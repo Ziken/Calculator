@@ -2,7 +2,8 @@
     const calcElement = element;
     const enableKeyboard = new Keyboard(calcElement);
     const enableComputations = new Computations();
-    const interface = new CalculatorInterface(calcElement, enableKeyboard, enableComputations);
+    const enableMemory = new MemoryCalculator(calcElement);
+    const interface = new CalculatorInterface(calcElement, enableKeyboard, enableComputations, enableMemory);
 
 
 
