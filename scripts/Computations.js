@@ -17,7 +17,6 @@ const Computations = function () {
     const calculateResult = (operations = []) => {
         let singleOperations = [...operations];
         singleOperations = getIntoParentheses(singleOperations);
-
         return safeResult(singleOperations[0]);
     };
     /**
@@ -137,7 +136,7 @@ const Computations = function () {
     const safeResult = ( r = 0 ) => {
         if (
             Number.isFinite(r) &&
-            Number.isSafeInteger(r) &&
+            Math.abs(r) <= Number.MAX_SAFE_INTEGER &&
             !Number.isNaN(r)
         ) {
             return r;
