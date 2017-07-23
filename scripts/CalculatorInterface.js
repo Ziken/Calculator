@@ -35,15 +35,20 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const getInputValueAsString = () => {
         return calcInput.value;
     };
-    const setInputVal = ( val = '' ) => {
+    const setInputVal = ( val = 0 ) => {
         let value = val;
-        if ( value.toString().length <= 8 /*&& isFloat(value)*/ ) {
+        if ( isFloat(value) ) {
+            value = value.toPrecision(8);
+            calcInput.value = value;
+        } else if ( value.toString().length <= 8  /*&& isFloat(value)*/ ) {
             //value = Number(value).toPrecision(8);
             calcInput.value  =  value;
         }
 
     };
-
+    const isFloat = ( n = 0 ) => {
+        return n === +n && n !== (n|0);
+    };
     const addNumberToInput = ( val ) => {
         let inputValueAsString = getInputValueAsString();
         let lenInput = inputValueAsString.length;
@@ -160,9 +165,14 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
             }
         }
         refreshOperationsContainer();
-        const result = computationsObj.calculateResult(operations);
-        clearOperations();
-        setInputVal(result);
+        const compute = new Promise( ( resolve ) => { //TODO block keys when computes result
+            const result = computationsObj.calculateResult(operations);
+            resolve(result);
+
+        }).then((v)=>{
+            clearOperations();
+            setInputVal(v);
+        });
     };
     const clearOperations = () => {
         operations.length = 0;

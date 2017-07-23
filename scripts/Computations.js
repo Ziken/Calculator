@@ -15,9 +15,8 @@ const Computations = function () {
     * @return {Number} result of operation
     */
     const calculateResult = (operations = []) => {
-        let singleOperations = [...operations];
-        singleOperations = getIntoParentheses(singleOperations);
-        return safeResult(singleOperations[0]);
+        const singleOperations = [...operations];
+        return safeResult( getIntoParentheses(singleOperations)[0] );
     };
     /**
     * Compute operations contains parentheses
