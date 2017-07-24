@@ -16,6 +16,7 @@ const Computations = function () {
     */
     const calculateResult = (operations = []) => {
         const singleOperations = [...operations];
+
         return safeResult( getIntoParentheses(singleOperations)[0] );
     };
     /**
@@ -36,7 +37,6 @@ const Computations = function () {
             } else if (currentChar == ')') {
                 let lastOpenP = arrOpenP.pop();
                 let r = orderOfOperations(arr.slice(lastOpenP+1,i) )[0];
-
                 arr[lastOpenP] = r;
 
                 arr = arr.filter((v,index) => {
@@ -84,7 +84,7 @@ const Computations = function () {
             if ( sign1Pos == -1 && sign2Pos == -1 ) {
                 // no operations with these signs eg. division and multiplication
                 // remove empty fields
-                arrOfOperations = arrOfOperations.filter(v => v);
+                arrOfOperations = arrOfOperations.filter(v => v===''?false:true);
                 break;
             } else if ( sign1Pos < sign2Pos && sign1Pos != -1 || sign2Pos == -1 ) {
                 //sign1 first eg. division
