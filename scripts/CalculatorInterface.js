@@ -18,12 +18,12 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const BOOL = { //store all booleans in one variable
         isResult: false,
         wasParenthesisUsed: false,
-        forbidUseParenthesis: false
+        forbidUsingParenthesis: false,
+        forbidUsingKeyboard: false
     };
     const operations = [];
 
     let amountOfUsedLeftParenthesis = 0;
-
 
     const init = () => {
         keyboardObj.setActionListener(executeCalcAction);
@@ -37,13 +37,10 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     };
     const setInputVal = ( val = 0 ) => {
         let value = val;
-        if ( isFloat(value) ) {
-            value = value.toPrecision(8);
+        if ( isFloat(value) || value.toString() > 8 )
             calcInput.value = value;
-        } else if ( value.toString().length <= 8  /*&& isFloat(value)*/ ) {
-            //value = Number(value).toPrecision(8);
-            calcInput.value  =  value;
-        }
+
+        calcInput.value  =  value;
 
     };
     const isFloat = ( n = 0 ) => {
@@ -90,8 +87,8 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
         }
     };
     const executeCalcAction = ( action = '' ) => {
-
-        switch (action) {
+        if ( BOOL.forbidUsingKeyboard ) return false;
+        switch ( action ) {
             case '0':
             case '1':
             case '2':
@@ -102,15 +99,15 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
             case '7':
             case '8':
             case '9':
-                //clearLastResult();// don't save current value
+                clearLastResult();// don't save current value (result)
                 addNumberToInput(action);
                 break;
             case 'dot':
-                //clearLastResult();// don't save current value
+                clearLastResult();// don't save current value (result)
                 addDotToInput();
                 break;
             case 'change_sign':
-                //clearLastResult();// don't save current value
+                clearLastResult();// don't save current value (result)
                 reverseValue();
                 break;
             case 'backspace':
@@ -153,6 +150,13 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
 
         }
     };
+    const clearLastResult = () => {
+        if ( BOOL.isResult ) {
+            BOOL.isResult = false;
+            refreshOperationsContainer();
+            clearInput();
+        }
+    };
     const computeOperations = () => {
 
         if ( amountOfUsedLeftParenthesis == 0 ) {
@@ -165,11 +169,14 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
             }
         }
         refreshOperationsContainer();
-        const compute = new Promise( ( resolve ) => { //TODO block keys when computes result
+        new Promise( ( resolve ) => { //TODO block keys when computes result
+            BOOL.forbidUsingKeyboard = true;
             const result = computationsObj.calculateResult(operations);
             resolve(result);
 
         }).then((v)=>{
+            BOOL.forbidUsingKeyboard = false;
+            BOOL.isResult = true;
             clearOperations();
             setInputVal(v);
         });
@@ -187,30 +194,35 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
         });
     };
     const addParenthesis = (type) => {
-        if ( type === 'left_p' && !BOOL.forbidUseParenthesis ) {
+        if ( type === 'left_p' && !BOOL.forbidUsingParenthesis ) {
             amountOfUsedLeftParenthesis++;
             operations.push('(');
         } else if ( type === 'right_p' && amountOfUsedLeftParenthesis > 0 ) {
             amountOfUsedLeftParenthesis--;
             saveOperation('');
-            BOOL.forbidUseParenthesis = true;
+            BOOL.forbidUsingParenthesis = true;
             BOOL.wasParenthesisUsed = true;
             operations.push(')');
         }
         refreshOperationsContainer();
     };
     const saveOperation = ( sign = '' ) => {
-        //isResult = false;
+        if ( BOOL.isResult ) {
+            const currentInput = getInputValue();
+            if (currentInput === 'error' )
+                clearInput();
+            BOOL.isResult = false;
+        }
         if ( BOOL.wasParenthesisUsed ) {
             BOOL.wasParenthesisUsed = false;
             if ( sign != '' ) {
                 operations.push(sign);
-                BOOL.forbidUseParenthesis = false;
+                BOOL.forbidUsingParenthesis = false;
             }
         } else {
             operations.push(getInputValue());
             if ( sign != '' ) {//after sign can use parenthesis
-                BOOL.forbidUseParenthesis = false;
+                BOOL.forbidUsingParenthesis = false;
                 operations.push(sign);
             }
             clearInput();
