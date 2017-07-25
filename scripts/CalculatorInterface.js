@@ -5,8 +5,8 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     'use strict';
     const operationsContainer   =    calcHandler.querySelector('.operations');
     const calcInput             =    calcHandler.querySelector('.calc-input');
-    //const arrowLeft         =    calcHandler.querySelector('.arrow-left');
-    //const arrowRight        =    calcHandler.querySelector('.arrow-right');
+    const operationsArrowLeft   =    calcHandler.querySelector('.arrow-left');
+    const operationsArrowRight  =    calcHandler.querySelector('.arrow-right');
     //let movingOperationArrows = true;
 
     const SIGNS = { //operations signs
@@ -16,10 +16,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
         sub: '-'    // subtraction
     };
     const BOOL = { //store all booleans in one variable
-        isResult: false,
-        wasParenthesisUsed: false,
+        isResult:               false,
+        wasParenthesisUsed:     false,
         forbidUsingParenthesis: false,
-        forbidUsingKeyboard: false
+        forbidUsingKeyboard:    false,
+        forbitUsingArrows:      false
     };
     const operations = [];
 
@@ -28,6 +29,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const init = () => {
         keyboardObj.setActionListener(executeCalcAction);
         memoryObj.setValueMethod(setInputVal);
+        operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
+        operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
+        /*calcHandler.addEventListener('focus', ()=>{
+            //calcInput.focus();
+        },false);*/
     };
     const getInputValue  = () => {
         return Number(calcInput.value);
@@ -37,10 +43,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     };
     const setInputVal = ( val = 0 ) => {
         let value = val;
-        if ( isFloat(value) || value.toString() > 8 )
-            calcInput.value = value;
+        if ( isFloat(value) && value.toString().length > 8 ) {
+            value = value.toPrecision(8);
+        }
+        calcInput.value = value;
 
-        calcInput.value  =  value;
 
     };
     const isFloat = ( n = 0 ) => {
@@ -178,7 +185,8 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
             BOOL.forbidUsingKeyboard = false;
             BOOL.isResult = true;
             clearOperations();
-            setInputVal(v);
+            //console.log(v.toPrecision(8));
+            setInputVal( v );
         });
     };
     const clearOperations = () => {
@@ -209,8 +217,9 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const saveOperation = ( sign = '' ) => {
         if ( BOOL.isResult ) {
             const currentInput = getInputValue();
-            if (currentInput === 'error' )
+            if ( isNaN(currentInput) ) {
                 clearInput();
+            }
             BOOL.isResult = false;
         }
         if ( BOOL.wasParenthesisUsed ) {
@@ -239,6 +248,77 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const addValueToMemory = () => {
         const val = getInputValue();
         memoryObj.addCellToMemory(val);
+    };
+    const moveOperationsContainer = ( evt ) => {
+        const direction = evt.target.dataset.direction;
+
+        if ( BOOL.forbitUsingArrows ) return false;
+        const widthOfBlock = +window.getComputedStyle(operationsContainer).width.split('px')[0] || 0;
+        const leftStyle = +window.getComputedStyle(operationsContainer).left.split('px')[0] || 0;
+        let offsetLeft = 0;
+        let parts = widthOfBlock % 240;
+        let changeOffset = false;
+
+        if ( (widthOfBlock-parts) == leftStyle )
+            offsetLeft = leftStyle + parts;
+        else
+            changeOffset = true;
+
+        if ( direction == 'left' ) {
+            if ( changeOffset )
+                offsetLeft = leftStyle + 240;
+
+            if ( offsetLeft <= 0 ) {
+                BOOL.forbitUsingArrows = true;// if animations runs, block arrows
+                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbitUsingArrows=false; });
+            }
+        } else {
+            if ( changeOffset )
+                offsetLeft = leftStyle - 240;
+
+            if ( widthOfBlock>285 && -1*offsetLeft <= widthOfBlock ) {
+                BOOL.forbitUsingArrows = true;// if animations runs, block arrows
+                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbitUsingArrows=false; });
+            }
+        }
+
+    };
+
+    const animate =  ( elem, property, aim, duration = 1000, complete = ()=>{} ) => {
+        let startTime;
+        let direction;
+        let end;
+        let start = +window.getComputedStyle(elem)[property].split('p')[0] || 0;
+        let unit = aim.split(/[0-9\s]+/)[1];
+        let destination = aim.split(/[a-zA-Z\s]+/)[0];
+
+        if ( destination > 0 && start > 0 ) {
+            if ( (destination-start) > 0 ) {
+                end = destination;
+                direction = -1;
+            } else {
+                end = start;
+                direction = 1;
+            }
+        } else {
+            end = destination-start;
+            direction = -1;
+        }
+        const runAnimation = ( timestamp ) => {
+            let runTime = timestamp-startTime;
+            let progress = runTime/duration;
+            progress = Math.min(1,progress);
+
+            elem.style[property] = (start - (progress*end).toFixed(2)*direction) + unit;
+            if ( runTime < duration )
+                window.requestAnimationFrame(runAnimation);
+            else complete();
+        };
+        //run animaiton
+        window.requestAnimationFrame( ( timestamp ) => {
+            startTime = timestamp;
+            runAnimation(timestamp);
+        });
     };
 
     init();

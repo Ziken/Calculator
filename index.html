@@ -10,11 +10,11 @@
     <section id="calc">
         <div class="calculations">
             <div class="group-operations">
-                <span class="arrow-left">&lt;</span>
+                <span class="arrow-left" data-direction="left" >&lt;</span>
                 <div class="operations-area">
                     <p class="operations"></p>
                 </div>
-                <span class="arrow-right">&gt;</span>
+                <span class="arrow-right" data-direction="right" >&gt;</span>
             </div>
             <div class="input-area">
                   <input class="calc-input" value="0" readonly />
@@ -33,7 +33,7 @@
             <button data-val="7" >7</button>
             <button data-val="8" >8</button>
             <button data-val="9" >9</button>
-            <button data-val="multiply" >x</button>
+            <button data-val="multiply" >*</button>
             <button data-val="4" >4</button>
             <button data-val="5" >5</button>
             <button data-val="6" >6</button>
@@ -50,7 +50,7 @@
             <button data-val="equality" >=</button>
         </div>
         <div class="memory-calc">
-            <span class="close-memory-calc"><img src="img/close.png" alt="close"></span>
+            <span tabindex="0" class="close-memory-calc"><img src="img/close.png" alt="close"></span>
             <!-- Memory cells -->
         </div>
     </section>
