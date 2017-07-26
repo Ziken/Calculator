@@ -1,12 +1,15 @@
 /**
-
+ * Connect all classes, run calculator
+ * @param {Object} opt essential elements to run calculator
 */
-const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj, memoryObj ) {
+const CalculatorInterface = function ( opt ) {
+    //calcHandler, keyboardObj, computationsObj, memoryObj
     'use strict';
-    const operationsContainer   =    calcHandler.querySelector('.operations');
-    const calcInput             =    calcHandler.querySelector('.calc-input');
-    const operationsArrowLeft   =    calcHandler.querySelector('.arrow-left');
-    const operationsArrowRight  =    calcHandler.querySelector('.arrow-right');
+    const operationsContainer   =    opt.calcHandler.querySelector('.operations');
+    const calcInput             =    opt.calcHandler.querySelector('.calc-input');
+    const operationsArrowLeft   =    opt.calcHandler.querySelector('.arrow-left');
+    const operationsArrowRight  =    opt.calcHandler.querySelector('.arrow-right');
+    const missedParenthesisCont =    opt.calcHandler.querySelector('.missed-parenthesis');
     //let movingOperationArrows = true;
 
     const SIGNS = { //operations signs
@@ -27,13 +30,13 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     let amountOfUsedLeftParenthesis = 0;
 
     const init = () => {
-        keyboardObj.setActionListener(executeCalcAction);
-        memoryObj.setValueMethod(setInputVal);
+        opt.keyboardObj.setActionListener(executeCalcAction);
+        opt.memoryObj.setValueMethod(setInputVal);
         operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
         operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
-        /*calcHandler.addEventListener('focus', ()=>{
-            //calcInput.focus();
-        },false);*/
+        opt.calcHandler.addEventListener('click', () => {
+            calcInput.focus();
+        },false);
     };
     const getInputValue  = () => {
         return Number(calcInput.value);
@@ -176,14 +179,15 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
             }
         }
         refreshOperationsContainer();
-        new Promise( ( resolve ) => { //TODO block keys when computes result
+        new Promise( ( resolve ) => {
             BOOL.forbidUsingKeyboard = true;
-            const result = computationsObj.calculateResult(operations);
+            const result = opt.computationsObj.calculateResult(operations);
             resolve(result);
 
         }).then((v)=>{
             BOOL.forbidUsingKeyboard = false;
             BOOL.isResult = true;
+            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             clearOperations();
             //console.log(v.toPrecision(8));
             setInputVal( v );
@@ -196,6 +200,7 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
         clearOperations();
         clearInput();
         refreshOperationsContainer();
+        missedParenthesisCont.innerHTML = 0;
         //reset varabke bool to default
         Object.entries(BOOL).forEach( ( [key] ) => {
             BOOL[key] = false;
@@ -204,9 +209,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
     const addParenthesis = (type) => {
         if ( type === 'left_p' && !BOOL.forbidUsingParenthesis ) {
             amountOfUsedLeftParenthesis++;
+            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             operations.push('(');
         } else if ( type === 'right_p' && amountOfUsedLeftParenthesis > 0 ) {
             amountOfUsedLeftParenthesis--;
+            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             saveOperation('');
             BOOL.forbidUsingParenthesis = true;
             BOOL.wasParenthesisUsed = true;
@@ -243,11 +250,11 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
         operationsContainer.innerHTML = operations.join(' '); //convert into string
     };
     const showMemoryContainer = () => {
-        memoryObj.showMemoryCont();
+        opt.memoryObj.showMemoryCont();
     };
     const addValueToMemory = () => {
         const val = getInputValue();
-        memoryObj.addCellToMemory(val);
+        opt.memoryObj.addCellToMemory(val);
     };
     const moveOperationsContainer = ( evt ) => {
         const direction = evt.target.dataset.direction;
@@ -281,7 +288,6 @@ const CalculatorInterface = function ( calcHandler, keyboardObj, computationsObj
                 animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbitUsingArrows=false; });
             }
         }
-
     };
 
     const animate =  ( elem, property, aim, duration = 1000, complete = ()=>{} ) => {

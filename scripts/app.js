@@ -1,11 +1,16 @@
 (function (element) {
-    const calcElement = element;
-    const enableKeyboard = new Keyboard(calcElement);
-    const enableComputations = new Computations();
-    const enableMemory = new MemoryCalculator(calcElement);
-    const interface = new CalculatorInterface(calcElement, enableKeyboard, enableComputations, enableMemory);
 
+    const calcElement        =  element;
+    const enableKeyboard     =  new Keyboard(calcElement);
+    const enableComputations =  new Computations();
+    const enableMemory       =  new MemoryCalculator(calcElement);
 
+    const interface = new CalculatorInterface({
+        calcHandler:        calcElement,
+        keyboardObj:        enableKeyboard,
+        computationsObj:    enableComputations,
+        memoryObj:          enableMemory
+    });
 
 })( document.querySelector('#calc') );
 /*
