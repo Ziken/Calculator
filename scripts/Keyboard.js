@@ -28,19 +28,25 @@ const Keyboard = function ( calcElement ) {
 
     const physicalKeyboardListener = ( evt ) => {
         const keyId = evt.keyCode || 0;
+        const pressedShift = evt.shiftKey;
         let action = '';
         switch ( keyId ) {
             case 8: //backspace
                 action = 'backspace';
                 break;
             case 13: //enter
-                action = 'equality';
+                if ( evt.target.tagName == 'INPUT' )
+                    action = 'equality';
                 break;
             case 27: //ESC
                 action = 'c';
                 break;
             // numbers and nums
-            case 48:
+            case 48://right parenthesis
+                if ( pressedShift ) {
+                    action = 'right_p';
+                    break;
+                }
             case 49:
             case 50:
             case 51:
@@ -49,7 +55,11 @@ const Keyboard = function ( calcElement ) {
             case 54:
             case 55:
             case 56:
-            case 57:
+            case 57://left parenthesis
+                if ( pressedShift ) {
+                    action = 'left_p';
+                    break;
+                }
             case 96:
             case 97:
             case 98:
@@ -89,6 +99,10 @@ const Keyboard = function ( calcElement ) {
         const action = evt.target.dataset.val || '';
         sendActionTo(action);
     };
+    /**
+    * Where send action
+    * @param {Function} func send action to this function
+    */
     const setActionListener = ( func ) => {
         sendActionTo = func;
     };
