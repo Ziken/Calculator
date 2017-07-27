@@ -3,14 +3,12 @@
  * @param {Object} opt essential elements to run calculator
 */
 const CalculatorInterface = function ( opt ) {
-    //calcHandler, keyboardObj, computationsObj, memoryObj
     'use strict';
     const operationsContainer   =    opt.calcHandler.querySelector('.operations');
     const calcInput             =    opt.calcHandler.querySelector('.calc-input');
     const operationsArrowLeft   =    opt.calcHandler.querySelector('.arrow-left');
     const operationsArrowRight  =    opt.calcHandler.querySelector('.arrow-right');
     const missedParenthesisCont =    opt.calcHandler.querySelector('.missed-parenthesis');
-    //let movingOperationArrows = true;
 
     const SIGNS = { //operations signs
         multi: '*', // multiplication
@@ -34,8 +32,9 @@ const CalculatorInterface = function ( opt ) {
         opt.memoryObj.setValueMethod(setInputVal);
         operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
         operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
-        opt.calcHandler.addEventListener('click', () => {
-            calcInput.focus();
+        opt.calcHandler.addEventListener('click', (evt) => {
+            if ( evt.target.tagName != 'BUTTON' ) //Focus button unless target is button
+                calcInput.focus();
         },false);
     };
     const getInputValue  = () => {
@@ -97,6 +96,7 @@ const CalculatorInterface = function ( opt ) {
         }
     };
     const executeCalcAction = ( action = '' ) => {
+
         if ( BOOL.forbidUsingKeyboard ) return false;
         switch ( action ) {
             case '0':
@@ -173,11 +173,11 @@ const CalculatorInterface = function ( opt ) {
             saveOperation('');//add to input current value
         } else {
             //auto close parenthesis
-            while ( amountOfUsedLeftParenthesis > 0 ) {
+            while ( amountOfUsedLeftParenthesis > 0 ) {//TODO does not work
                 addParenthesis('right_p');
-                amountOfUsedLeftParenthesis--;
             }
         }
+
         refreshOperationsContainer();
         new Promise( ( resolve ) => {
             BOOL.forbidUsingKeyboard = true;
@@ -185,11 +185,11 @@ const CalculatorInterface = function ( opt ) {
             resolve(result);
 
         }).then((v)=>{
-            BOOL.forbidUsingKeyboard = false;
+            resetBOOL();
             BOOL.isResult = true;
             missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             clearOperations();
-            //console.log(v.toPrecision(8));
+
             setInputVal( v );
         });
     };
@@ -201,11 +201,14 @@ const CalculatorInterface = function ( opt ) {
         clearInput();
         refreshOperationsContainer();
         missedParenthesisCont.innerHTML = 0;
+        resetBOOL();
+    };
+    const resetBOOL = () => {
         //reset varabke bool to default
         Object.entries(BOOL).forEach( ( [key] ) => {
             BOOL[key] = false;
         });
-    };
+    }
     const addParenthesis = (type) => {
         if ( type === 'left_p' && !BOOL.forbidUsingParenthesis ) {
             amountOfUsedLeftParenthesis++;
@@ -222,7 +225,8 @@ const CalculatorInterface = function ( opt ) {
         refreshOperationsContainer();
     };
     const saveOperation = ( sign = '' ) => {
-        if ( BOOL.isResult ) {
+
+        if ( BOOL.isResult ) { // use last result
             const currentInput = getInputValue();
             if ( isNaN(currentInput) ) {
                 clearInput();
@@ -257,9 +261,10 @@ const CalculatorInterface = function ( opt ) {
         opt.memoryObj.addCellToMemory(val);
     };
     const moveOperationsContainer = ( evt ) => {
-        const direction = evt.target.dataset.direction;
+        if ( BOOL.forbitUsingArrows )
+            return false;
 
-        if ( BOOL.forbitUsingArrows ) return false;
+        const direction = evt.target.dataset.direction;
         const widthOfBlock = +window.getComputedStyle(operationsContainer).width.split('px')[0] || 0;
         const leftStyle = +window.getComputedStyle(operationsContainer).left.split('px')[0] || 0;
         let offsetLeft = 0;
