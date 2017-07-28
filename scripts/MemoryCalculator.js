@@ -1,20 +1,22 @@
-
+/**
+ * Enable save numbers in memory
+*/
 const MemoryCalculator = function ( calcElement ) {
     'use strict';
-    const memoryCont = calcElement.querySelector('.memory-calc');
-    const valuesInMemory = new Set();
-    const closeMemoryBtn = memoryCont.querySelector('.close-memory-calc');
+    const memoryCont     =  calcElement.querySelector('.memory-calc');
+    const valuesInMemory =  new Set();
+    const closeMemoryBtn =  memoryCont.querySelector('.close-memory-calc');
+
     let setValue;
+    let stopExecuting = false;
+
     const init = () => {
         closeMemoryBtn.addEventListener('click',hideMemoryCont,false);
-
-        memoryCont.addEventListener('click',function(){ //FIXME how to handle with calc input
-            //calcInput.focus();
-        },false); //after close memory container, focus on input
+        closeMemoryBtn.addEventListener('keydown',hideMemoryCont,false); // enable using keyboard
     };
-    const setValueMethod = (method) => {
+    const setValueMethod = ( method ) => {
         setValue = method;
-    }
+    };
     /**
     * public funciton
     */
@@ -23,14 +25,26 @@ const MemoryCalculator = function ( calcElement ) {
         closeMemoryBtn.focus();
     };
 
-    const hideMemoryCont = () => {
+    const hideMemoryCont = ( evt = {} ) => {
+        if ( !isEnterKey(evt) ) return false;
         memoryCont.classList.remove('show-elem');
+        calcElement.click();
+    };
+    const isEnterKey = ( evt ) => {
+        const key = evt.keyCode;
+        if ( key == undefined ) { // there is no keyboard event
+            return true
+        } else {
+            if ( key === 13 )
+                return true;
+        }
+        return false;
     };
     /**
-    * Public funciton
+     * Public funciton, create memory cell
+     * @param {Number} val add this value to momoery
     */
     const addCellToMemory = ( val = 0 ) => {
-        //if ( val == '' ) return false;
         const inputVal = val;
         if ( valuesInMemory.has(inputVal) ) { // terminate executing function
             return true;
@@ -47,6 +61,7 @@ const MemoryCalculator = function ( calcElement ) {
         cell.classList.add('single-cell');
         cell.setAttribute('tabindex', 0);
         cell.addEventListener('click', loadMemoryIntoInput, false);
+        cell.addEventListener('keypress', loadMemoryIntoInput, false);// enter
 
         resultSpan.classList.add('memory-result');
         resultSpan.appendChild(resultNode);
@@ -55,6 +70,7 @@ const MemoryCalculator = function ( calcElement ) {
         removeCellSpan.setAttribute('tabindex', 0);
         removeCellSpan.appendChild(closeTextNode);
         removeCellSpan.addEventListener('click', removeSingleCell, false);
+        removeCellSpan.addEventListener('keypress', removeSingleCell, false);
 
         cell.appendChild(resultSpan);
         cell.appendChild(removeCellSpan);
@@ -66,8 +82,16 @@ const MemoryCalculator = function ( calcElement ) {
         const val = parent.dataset.value;
         valuesInMemory.delete(+val); //parse into number
         parent.remove();
+        closeMemoryBtn.focus();
+        stopExecuting = true;
     };
-    const loadMemoryIntoInput = (evt) => {
+    const loadMemoryIntoInput = ( evt ) => {
+        if ( stopExecuting ) {
+            stopExecuting = false;
+            return true;
+        }
+        if ( !isEnterKey(evt) ) return true;
+
         const elemName = evt.target.nodeName;
         let value = 0;
         if (elemName.toLowerCase() == 'p') { // click on text
