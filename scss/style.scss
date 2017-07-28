@@ -1,6 +1,6 @@
 /*
     Created on : 2017-02-01, 18:11:11
-    Author     : patev
+    Author     : Ziken
 */
 // ******************
 // Functions
@@ -97,9 +97,12 @@ $duraton_anim: 1000;//ms
                 height: 50px;
                 padding:0;
                 cursor: pointer;
-                    &:hover {
+                    &:hover, &:focus {
                         background-color: #444;
                     }
+                .missing-parenthesis {
+                    color: #999;
+                }
             }
             .btn-backspace {
                 background-image: url('../img/backspace.png');
@@ -190,7 +193,7 @@ $duraton_anim: 1000;//ms
                 padding: 10px;
                 color: #ffffff;
                 margin-top: 2px;
-                    &:hover{
+                    &:hover, &:focus {
                         background: rgba(5, 5, 5, 0.9);
                     }
                     .remove-single-cell {

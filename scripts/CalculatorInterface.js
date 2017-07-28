@@ -8,7 +8,7 @@ const CalculatorInterface = function ( opt ) {
     const calcInput             =    opt.calcHandler.querySelector('.calc-input');
     const operationsArrowLeft   =    opt.calcHandler.querySelector('.arrow-left');
     const operationsArrowRight  =    opt.calcHandler.querySelector('.arrow-right');
-    const missedParenthesisCont =    opt.calcHandler.querySelector('.missed-parenthesis');
+    const missingParenthesisCont =    opt.calcHandler.querySelector('.missing-parenthesis');
 
     const SIGNS = { //operations signs
         multi: '*', // multiplication
@@ -32,8 +32,8 @@ const CalculatorInterface = function ( opt ) {
         opt.memoryObj.setValueMethod(setInputVal);
         operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
         operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
-        opt.calcHandler.addEventListener('click', (evt) => {
-            if ( evt.target.tagName != 'BUTTON' ) //Focus button unless target is button
+        opt.calcHandler.addEventListener('click', ( evt ) => {
+            if ( evt.target.tagName != 'BUTTON' ) //Focus input every click on calculator unless target is button
                 calcInput.focus();
         },false);
     };
@@ -49,8 +49,6 @@ const CalculatorInterface = function ( opt ) {
             value = value.toPrecision(8);
         }
         calcInput.value = value;
-
-
     };
     const isFloat = ( n = 0 ) => {
         return n === +n && n !== (n|0);
@@ -93,6 +91,17 @@ const CalculatorInterface = function ( opt ) {
             }
         } else {
             setInputVal(0);
+        }
+    };
+    const safeResult = ( r = 0 ) => {
+        if (
+            Number.isFinite(r) &&
+            Math.abs(r) <= Number.MAX_SAFE_INTEGER &&
+            !Number.isNaN(r)
+        ) {
+            return true;
+        } else {
+            return false;
         }
     };
     const executeCalcAction = ( action = '' ) => {
@@ -173,7 +182,7 @@ const CalculatorInterface = function ( opt ) {
             saveOperation('');//add to input current value
         } else {
             //auto close parenthesis
-            while ( amountOfUsedLeftParenthesis > 0 ) {//TODO does not work
+            while ( amountOfUsedLeftParenthesis > 0 ) {
                 addParenthesis('right_p');
             }
         }
@@ -187,7 +196,7 @@ const CalculatorInterface = function ( opt ) {
         }).then((v)=>{
             resetBOOL();
             BOOL.isResult = true;
-            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             clearOperations();
 
             setInputVal( v );
@@ -200,23 +209,23 @@ const CalculatorInterface = function ( opt ) {
         clearOperations();
         clearInput();
         refreshOperationsContainer();
-        missedParenthesisCont.innerHTML = 0;
+        missingParenthesisCont.innerHTML = 0;
         resetBOOL();
     };
     const resetBOOL = () => {
-        //reset varabke bool to default
+        //reset varabkes bool to default
         Object.entries(BOOL).forEach( ( [key] ) => {
             BOOL[key] = false;
         });
-    }
+    };
     const addParenthesis = (type) => {
         if ( type === 'left_p' && !BOOL.forbidUsingParenthesis ) {
             amountOfUsedLeftParenthesis++;
-            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             operations.push('(');
         } else if ( type === 'right_p' && amountOfUsedLeftParenthesis > 0 ) {
             amountOfUsedLeftParenthesis--;
-            missedParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
             saveOperation('');
             BOOL.forbidUsingParenthesis = true;
             BOOL.wasParenthesisUsed = true;
@@ -228,9 +237,9 @@ const CalculatorInterface = function ( opt ) {
 
         if ( BOOL.isResult ) { // use last result
             const currentInput = getInputValue();
-            if ( isNaN(currentInput) ) {
+            if ( !safeResult(currentInput) )
                 clearInput();
-            }
+
             BOOL.isResult = false;
         }
         if ( BOOL.wasParenthesisUsed ) {
@@ -258,7 +267,8 @@ const CalculatorInterface = function ( opt ) {
     };
     const addValueToMemory = () => {
         const val = getInputValue();
-        opt.memoryObj.addCellToMemory(val);
+        if ( safeResult(val) )
+            opt.memoryObj.addCellToMemory(val);
     };
     const moveOperationsContainer = ( evt ) => {
         if ( BOOL.forbitUsingArrows )

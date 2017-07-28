@@ -1,5 +1,5 @@
 /**
- * Compute result form string like eval
+ * Compute result form array like eval
 */
 const Computations = function () {
     'use strict';
@@ -14,18 +14,19 @@ const Computations = function () {
     * @param {Array} operations simple operations saved in array
     * @return {Number} result of operation
     */
-    const calculateResult = (operations = []) => {
+    const calculateResult = ( operations = [] ) => {
         const singleOperations = [...operations];
-
-        return safeResult( getIntoParentheses(singleOperations)[0] );
+        const result = getIntoParentheses(singleOperations)[0];
+        return safeResult(result);
     };
     /**
     * Compute operations contains parentheses
     * @param {Array} ArrOfOperations split array like [1,+,2,...]
-    * @return array of one element -> result
+    * @return {Number[]} array with one element -> result
     */
     const getIntoParentheses = ( ArrOfOperations ) => {
         let arr = [...ArrOfOperations];
+        //array of positons of open parenthesis
         const arrOpenP = [];
         //no parenthesis
         if ( arr.indexOf('(') == -1 ) return orderOfOperations(arr);
@@ -54,7 +55,7 @@ const Computations = function () {
     /**
     * Compute operations which don't contain parentheses
     * @param {Array} arr split array like [1,+,2,...] which doesn't contain parentheses
-    * @return result of these operations
+    * @return {Array} result of these operations
     */
     const orderOfOperations = (arr) => {
         let singleOperations = [...arr];
@@ -132,6 +133,10 @@ const Computations = function () {
         cpArr[pos+1] = result;
         return cpArr;
     };
+    /**
+     * Check if result is safe
+     * @param {Number} r number
+    */
     const safeResult = ( r = 0 ) => {
         if (
             Number.isFinite(r) &&

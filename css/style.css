@@ -1,6 +1,6 @@
 /*
     Created on : 2017-02-01, 18:11:11
-    Author     : patev
+    Author     : Ziken
 */
 /************
 * Reset styles
@@ -83,8 +83,11 @@ table {
   padding: 0;
   cursor: pointer;
 }
-#calc .buttons button:hover {
+#calc .buttons button:hover, #calc .buttons button:focus {
   background-color: #444;
+}
+#calc .buttons button .missing-parenthesis {
+  color: #999;
 }
 #calc .buttons .btn-backspace {
   background-image: url("../img/backspace.png");
@@ -175,7 +178,7 @@ table {
   color: #ffffff;
   margin-top: 2px;
 }
-#calc .memory-calc .single-cell:hover {
+#calc .memory-calc .single-cell:hover, #calc .memory-calc .single-cell:focus {
   background: rgba(5, 5, 5, 0.9);
 }
 #calc .memory-calc .single-cell .remove-single-cell {

@@ -35,7 +35,7 @@ const Keyboard = function ( calcElement ) {
                 action = 'backspace';
                 break;
             case 13: //enter
-                if ( evt.target.tagName == 'INPUT' )
+                if ( evt.target.tagName == 'INPUT' ) //compute result only if focusing element is an input
                     action = 'equality';
                 break;
             case 27: //ESC
