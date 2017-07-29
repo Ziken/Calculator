@@ -4,11 +4,11 @@
 */
 const CalculatorInterface = function ( opt ) {
     'use strict';
-    const operationsContainer   =    opt.calcHandler.querySelector('.operations');
-    const calcInput             =    opt.calcHandler.querySelector('.calc-input');
-    const operationsArrowLeft   =    opt.calcHandler.querySelector('.arrow-left');
-    const operationsArrowRight  =    opt.calcHandler.querySelector('.arrow-right');
-    const missingParenthesisCont =    opt.calcHandler.querySelector('.missing-parenthesis');
+    const operationsContainer    =    opt.calcHandler.querySelector('.operations');
+    const calcInput              =    opt.calcHandler.querySelector('.calc-input');
+    const operationsArrowLeft    =    opt.calcHandler.querySelector('.arrow-left');
+    const operationsArrowRight   =    opt.calcHandler.querySelector('.arrow-right');
+    const missingParenthesesCont =    opt.calcHandler.querySelector('.missing-parentheses');
 
     const SIGNS = { //operations signs
         multi: '*', // multiplication
@@ -17,21 +17,23 @@ const CalculatorInterface = function ( opt ) {
         sub: '-'    // subtraction
     };
     const BOOL = { //store all booleans in one variable
-        isResult:               false,
-        wasParenthesisUsed:     false,
-        forbidUsingParenthesis: false,
-        forbidUsingKeyboard:    false,
-        forbitUsingArrows:      false
+        isResult:                false,
+        wasRightParenthesisUsed: false,
+        forbidUsingParentheses:  false,
+        forbidUsingKeyboard:     false,
+        forbidUsingArrows:       false,
+        forbidChangingSign:      false
     };
     const operations = [];
 
-    let amountOfUsedLeftParenthesis = 0;
+    let amountOfUsedLeftParentheses = 0;
 
     const init = () => {
         opt.keyboardObj.setActionListener(executeCalcAction);
         opt.memoryObj.setValueMethod(setInputVal);
         operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
         operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
+
         opt.calcHandler.addEventListener('click', ( evt ) => {
             if ( evt.target.tagName != 'BUTTON' ) //Focus input every click on calculator unless target is button
                 calcInput.focus();
@@ -54,6 +56,8 @@ const CalculatorInterface = function ( opt ) {
         return n === +n && n !== (n|0);
     };
     const addNumberToInput = ( val ) => {
+        BOOL.forbidChangingSign = true;
+
         let inputValueAsString = getInputValueAsString();
         let lenInput = inputValueAsString.length;
         if ( lenInput === 1 &&  inputValueAsString === '0' ) {//if input of calculator is empty (is only 0)
@@ -64,6 +68,8 @@ const CalculatorInterface = function ( opt ) {
     };
 
     const addDotToInput = () => {
+        BOOL.forbidChangingSign = true;
+
         const value = getInputValueAsString();
         if ( !/\./.test(value) ) { //if dot has not used in this number
             setInputVal(value + '.');
@@ -75,6 +81,7 @@ const CalculatorInterface = function ( opt ) {
     };
 
     const clearInput = () => {
+        BOOL.forbidChangingSign = false;
         setInputVal(0);
     };
 
@@ -85,12 +92,12 @@ const CalculatorInterface = function ( opt ) {
             let valWithoutFirstChar = valueAsString.substring(0,lenInput-1);
 
             if ( valWithoutFirstChar === '-' ) {
-                setInputVal(0);
+                clearInput();
             } else {
                 setInputVal(valWithoutFirstChar);
             }
         } else {
-            setInputVal(0);
+            clearInput();
         }
     };
     const safeResult = ( r = 0 ) => {
@@ -159,10 +166,10 @@ const CalculatorInterface = function ( opt ) {
             case 'equality':
                 computeOperations();
                 break;
-            case 'show_memory':///FIXME
+            case 'show_memory':
                 showMemoryContainer();
                 break;
-            case 'add_memory'://FIXME
+            case 'add_memory':
                 addValueToMemory();
                 break;
             default:
@@ -172,17 +179,18 @@ const CalculatorInterface = function ( opt ) {
     const clearLastResult = () => {
         if ( BOOL.isResult ) {
             BOOL.isResult = false;
+            defaultPositionOperationsContatiner();
             refreshOperationsContainer();
             clearInput();
         }
     };
     const computeOperations = () => {
 
-        if ( amountOfUsedLeftParenthesis == 0 ) {
+        if ( amountOfUsedLeftParentheses == 0 ) {
             saveOperation('');//add to input current value
         } else {
-            //auto close parenthesis
-            while ( amountOfUsedLeftParenthesis > 0 ) {
+            //auto close parentheses
+            while ( amountOfUsedLeftParentheses > 0 ) {
                 addParenthesis('right_p');
             }
         }
@@ -193,14 +201,15 @@ const CalculatorInterface = function ( opt ) {
             const result = opt.computationsObj.calculateResult(operations);
             resolve(result);
 
-        }).then((v)=>{
+        }).then( ( result ) => {
             resetBOOL();
             BOOL.isResult = true;
-            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
             clearOperations();
 
-            setInputVal( v );
+            setInputVal( result );
         });
+
     };
     const clearOperations = () => {
         operations.length = 0;
@@ -209,7 +218,7 @@ const CalculatorInterface = function ( opt ) {
         clearOperations();
         clearInput();
         refreshOperationsContainer();
-        missingParenthesisCont.innerHTML = 0;
+        missingParenthesesCont.innerHTML = 0;
         resetBOOL();
     };
     const resetBOOL = () => {
@@ -219,39 +228,49 @@ const CalculatorInterface = function ( opt ) {
         });
     };
     const addParenthesis = (type) => {
-        if ( type === 'left_p' && !BOOL.forbidUsingParenthesis ) {
-            amountOfUsedLeftParenthesis++;
-            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+        if ( type === 'left_p' && !BOOL.forbidUsingParentheses ) {
+            amountOfUsedLeftParentheses++;
+            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
             operations.push('(');
-        } else if ( type === 'right_p' && amountOfUsedLeftParenthesis > 0 ) {
-            amountOfUsedLeftParenthesis--;
-            missingParenthesisCont.innerHTML = amountOfUsedLeftParenthesis;
+        } else if ( type === 'right_p' && amountOfUsedLeftParentheses > 0 ) {
+            amountOfUsedLeftParentheses--;
+            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
             saveOperation('');
-            BOOL.forbidUsingParenthesis = true;
-            BOOL.wasParenthesisUsed = true;
+            BOOL.forbidUsingParentheses = true;
+            BOOL.wasRightParenthesisUsed = true;
             operations.push(')');
         }
         refreshOperationsContainer();
     };
     const saveOperation = ( sign = '' ) => {
-
+        const currentInput = getInputValue();
         if ( BOOL.isResult ) { // use last result
-            const currentInput = getInputValue();
+            defaultPositionOperationsContatiner();
             if ( !safeResult(currentInput) )
                 clearInput();
 
             BOOL.isResult = false;
         }
-        if ( BOOL.wasParenthesisUsed ) {
-            BOOL.wasParenthesisUsed = false;
+
+        if ( currentInput === 0 && sign != '' && !BOOL.wasRightParenthesisUsed && !BOOL.forbidChangingSign ) {//change current sign if value is 0
+            const lastSign = operations.pop();
+            if ( lastSign != undefined ) {
+                if ( lastSign != '(' )
+                    operations.push(sign);
+                else
+                    operations.push(lastSign);
+            }
+
+        } else if ( BOOL.wasRightParenthesisUsed ) {
+            BOOL.wasRightParenthesisUsed = false;
             if ( sign != '' ) {
                 operations.push(sign);
-                BOOL.forbidUsingParenthesis = false;
+                BOOL.forbidUsingParentheses = false;
             }
         } else {
-            operations.push(getInputValue());
+            operations.push(currentInput);
             if ( sign != '' ) {//after sign can use parenthesis
-                BOOL.forbidUsingParenthesis = false;
+                BOOL.forbidUsingParentheses = false;
                 operations.push(sign);
             }
             clearInput();
@@ -270,8 +289,12 @@ const CalculatorInterface = function ( opt ) {
         if ( safeResult(val) )
             opt.memoryObj.addCellToMemory(val);
     };
+    const defaultPositionOperationsContatiner = () => {
+        BOOL.forbidUsingArrows = true;
+        animate(operationsContainer, 'left', '0px', 500,() => { BOOL.forbidUsingArrows = false; });
+    };
     const moveOperationsContainer = ( evt ) => {
-        if ( BOOL.forbitUsingArrows )
+        if ( BOOL.forbidUsingArrows )
             return false;
 
         const direction = evt.target.dataset.direction;
@@ -291,16 +314,16 @@ const CalculatorInterface = function ( opt ) {
                 offsetLeft = leftStyle + 240;
 
             if ( offsetLeft <= 0 ) {
-                BOOL.forbitUsingArrows = true;// if animations runs, block arrows
-                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbitUsingArrows=false; });
+                BOOL.forbidUsingArrows = true;// if animations runs, block arrows
+                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbidUsingArrows=false; });
             }
         } else {
             if ( changeOffset )
                 offsetLeft = leftStyle - 240;
 
             if ( widthOfBlock>285 && -1*offsetLeft <= widthOfBlock ) {
-                BOOL.forbitUsingArrows = true;// if animations runs, block arrows
-                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbitUsingArrows=false; });
+                BOOL.forbidUsingArrows = true;// if animations runs, block arrows
+                animate(operationsContainer, 'left', offsetLeft + 'px', 300,() => { BOOL.forbidUsingArrows=false; });
             }
         }
     };
