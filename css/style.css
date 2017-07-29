@@ -86,7 +86,7 @@ table {
 #calc .buttons button:hover, #calc .buttons button:focus {
   background-color: #444;
 }
-#calc .buttons button .missing-parenthesis {
+#calc .buttons button .missing-parentheses {
   color: #999;
 }
 #calc .buttons .btn-backspace {
