@@ -2,14 +2,18 @@
  * Connect all classes, run calculator
  * @param {Object} opt essential elements to run calculator
 */
-const CalculatorInterface = function ( opt ) {
+const CalculatorInterface = function ( calcHandler, options ) {
     'use strict';
-    const operationsContainer    =    opt.calcHandler.querySelector('.operations');
-    const calcInput              =    opt.calcHandler.querySelector('.calc-input');
-    const operationsArrowLeft    =    opt.calcHandler.querySelector('.arrow-left');
-    const operationsArrowRight   =    opt.calcHandler.querySelector('.arrow-right');
-    const missingParenthesesCont =    opt.calcHandler.querySelector('.missing-parentheses');
-
+    const operationsContainer    =    calcHandler.querySelector('.operations');
+    const calcInput              =    calcHandler.querySelector('.calc-input');
+    const operationsArrowLeft    =    calcHandler.querySelector('.arrow-left');
+    const operationsArrowRight   =    calcHandler.querySelector('.arrow-right');
+    const missingParenthesesCont =    calcHandler.querySelector('.missing-parentheses');
+    const opt = {//Object.assign?
+        keyboardObj:        options.keyboardObj     ||   new Keyboard(calcHandler),
+        computationsObj:    options.computationsObj ||   new Computations(),
+        memoryObj:          options.memoryObj       ||   new MemoryCalculator(calcHandler)
+    };
     const SIGNS = { //operations signs
         multi: '*', // multiplication
         div: '/',   // division
@@ -34,7 +38,7 @@ const CalculatorInterface = function ( opt ) {
         operationsArrowLeft.addEventListener('click', moveOperationsContainer, false);
         operationsArrowRight.addEventListener('click', moveOperationsContainer, false);
 
-        opt.calcHandler.addEventListener('click', ( evt ) => {
+        calcHandler.addEventListener('click', ( evt ) => {
             if ( evt.target.tagName != 'BUTTON' ) //Focus input every click on calculator unless target is button
                 calcInput.focus();
         },false);
@@ -86,10 +90,10 @@ const CalculatorInterface = function ( opt ) {
     };
 
     const removeFirstChar = () => {
-        let valueAsString = getInputValueAsString();
-        let lenInput = valueAsString.length;
+        const valueAsString = getInputValueAsString();
+        const lenInput = valueAsString.length;
         if ( lenInput > 1 ) {
-            let valWithoutFirstChar = valueAsString.substring(0,lenInput-1);
+            const valWithoutFirstChar = valueAsString.substring(0,lenInput-1);
 
             if ( valWithoutFirstChar === '-' ) {
                 clearInput();
@@ -100,6 +104,13 @@ const CalculatorInterface = function ( opt ) {
             clearInput();
         }
     };
+    const updateValueInMissingParenthesesCont = ( val = '' ) => {
+        const value = val==='' ? amountOfUsedLeftParentheses : val;
+        if ( value < 0 )//error
+            console.error('Negative value of missing parenheses');
+        else
+            missingParenthesesCont.innerHTML = value;
+    }
     const safeResult = ( r = 0 ) => {
         if (
             Number.isFinite(r) &&
@@ -113,7 +124,8 @@ const CalculatorInterface = function ( opt ) {
     };
     const executeCalcAction = ( action = '' ) => {
 
-        if ( BOOL.forbidUsingKeyboard ) return false;
+        if ( BOOL.forbidUsingKeyboard ) return true;
+
         switch ( action ) {
             case '0':
             case '1':
@@ -187,7 +199,7 @@ const CalculatorInterface = function ( opt ) {
     const computeOperations = () => {
 
         if ( amountOfUsedLeftParentheses == 0 ) {
-            saveOperation('');//add to input current value
+            saveOperation('');//add to operations current value
         } else {
             //auto close parentheses
             while ( amountOfUsedLeftParentheses > 0 ) {
@@ -204,7 +216,7 @@ const CalculatorInterface = function ( opt ) {
         }).then( ( result ) => {
             resetBOOL();
             BOOL.isResult = true;
-            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
+            updateValueInMissingParenthesesCont();
             clearOperations();
 
             setInputVal( result );
@@ -218,7 +230,7 @@ const CalculatorInterface = function ( opt ) {
         clearOperations();
         clearInput();
         refreshOperationsContainer();
-        missingParenthesesCont.innerHTML = 0;
+        updateValueInMissingParenthesesCont(0);
         resetBOOL();
     };
     const resetBOOL = () => {
@@ -230,11 +242,11 @@ const CalculatorInterface = function ( opt ) {
     const addParenthesis = (type) => {
         if ( type === 'left_p' && !BOOL.forbidUsingParentheses ) {
             amountOfUsedLeftParentheses++;
-            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
+            updateValueInMissingParenthesesCont()
             operations.push('(');
         } else if ( type === 'right_p' && amountOfUsedLeftParentheses > 0 ) {
             amountOfUsedLeftParentheses--;
-            missingParenthesesCont.innerHTML = amountOfUsedLeftParentheses;
+            updateValueInMissingParenthesesCont()
             saveOperation('');
             BOOL.forbidUsingParentheses = true;
             BOOL.wasRightParenthesisUsed = true;
@@ -332,7 +344,7 @@ const CalculatorInterface = function ( opt ) {
         let startTime;
         let direction;
         let end;
-        let start = +window.getComputedStyle(elem)[property].split('p')[0] || 0;
+        let start = +window.getComputedStyle(elem)[property].split('p')[0] || 0;//suppose value is in px
         let unit = aim.split(/[0-9\s]+/)[1];
         let destination = aim.split(/[a-zA-Z\s]+/)[0];
 
