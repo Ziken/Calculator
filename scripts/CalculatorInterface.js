@@ -255,11 +255,13 @@ const CalculatorInterface = function ( calcHandler, options ) {
         refreshOperationsContainer();
     };
     const saveOperation = ( sign = '' ) => {
-        const currentInput = getInputValue();
+        let currentInput = getInputValue();
         if ( BOOL.isResult ) { // use last result
             defaultPositionOperationsContatiner();
-            if ( !safeResult(currentInput) )
+            if ( !safeResult(currentInput) ) {
                 clearInput();
+                currentInput = 0;
+            }
 
             BOOL.isResult = false;
         }
