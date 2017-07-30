@@ -5,8 +5,7 @@
     const enableComputations =  new Computations();
     const enableMemory       =  new MemoryCalculator(calcElement);
 
-    const interface = new CalculatorInterface({
-        calcHandler:        calcElement,
+    const interface = new CalculatorInterface(calcElement, {
         keyboardObj:        enableKeyboard,
         computationsObj:    enableComputations,
         memoryObj:          enableMemory

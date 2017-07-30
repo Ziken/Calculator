@@ -7,18 +7,19 @@ const Keyboard = function ( calcElement ) {
     'use strict';
     const containerButtons  =    calcElement.querySelector('.buttons');
     const buttons           =    Array.from(containerButtons.querySelectorAll('button'));
-    let sendActionTo        =    ()=>{};
+    let sendActionTo        =    () => {};
 
     const init = () => {
         triggerVirtualButtons();
         triggerPhysicalButtons();
     };
     const triggerPhysicalButtons = () => {
-        calcElement.addEventListener('keydown',physicalKeyboardListener,false);
+        calcElement.addEventListener('keydown', physicalKeyboardListener, false);
     };
     const triggerVirtualButtons = () => {
         buttons.forEach( ( btn ) => {
             btn.addEventListener('click', virtualKeyboardListener, false);
+            //it's fixing bug with img inside button
             const img = btn.querySelector('img');
             if ( img !== null ) {
                 img.removeEventListener('click', virtualKeyboardListener, false);
@@ -100,7 +101,7 @@ const Keyboard = function ( calcElement ) {
         sendActionTo(action);
     };
     /**
-    * Where send action
+    * Where send actions
     * @param {Function} func send action to this function
     */
     const setActionListener = ( func ) => {

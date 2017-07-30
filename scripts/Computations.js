@@ -26,22 +26,22 @@ const Computations = function () {
     */
     const getIntoParentheses = ( ArrOfOperations ) => {
         let arr = [...ArrOfOperations];
-        //array of positons of open parenthesis
+        //array of positons of left parenthesis
         const arrOpenP = [];
         //no parenthesis
         if ( arr.indexOf('(') == -1 ) return orderOfOperations(arr);
 
         for ( let i = 0; i < arr.length; i++ ) {
-            let currentChar = arr[i];
-            if (currentChar == '(') {
+            const currentChar = arr[i];
+            if ( currentChar == '(' ) {
                 arrOpenP.push(i);
-            } else if (currentChar == ')') {
-                let lastOpenP = arrOpenP.pop();
-                let r = orderOfOperations(arr.slice(lastOpenP+1,i) )[0];
+            } else if ( currentChar == ')' ) {
+                const lastOpenP = arrOpenP.pop();
+                const r = orderOfOperations( arr.slice(lastOpenP+1,i) )[0];
                 arr[lastOpenP] = r;
 
-                arr = arr.filter((v,index) => {
-                    if (index > lastOpenP && index <=i ) return false;
+                arr = arr.filter( ( v, index ) => {
+                    if ( index > lastOpenP && index <= i ) return false;
                     return true;
                 });
                 i = lastOpenP;
@@ -83,22 +83,22 @@ const Computations = function () {
             sign2Pos = arrOfOperations.indexOf(sign2, sign2Pos);
             // what is first
             if ( sign1Pos == -1 && sign2Pos == -1 ) {
-                // no operations with these signs eg. division and multiplication
+                // no operations with these signs e.g. division and multiplication
                 // remove empty fields
                 arrOfOperations = arrOfOperations.filter(v => v===''?false:true);
                 break;
             } else if ( sign1Pos < sign2Pos && sign1Pos != -1 || sign2Pos == -1 ) {
-                //sign1 first eg. division
+                //sign1 first e.g. division
                 arrOfOperations = computeSimpleOperation(arrOfOperations,sign1Pos);
             } else if ( sign2Pos < sign1Pos && sign2Pos != -1 || sign1Pos == -1 ) {
-                //sign2 first eg. multiplication
+                //sign2 first e.g. multiplication
                 arrOfOperations = computeSimpleOperation(arrOfOperations,sign2Pos);
             }
         }
         return arrOfOperations;
     };
     /**
-    * Calculate single operation eg. 1 + 2
+    * Calculate single operation e.g. 1 + 2
     * @param {Array}  arrOfOperations array of operations like [1,'+',2,...]
     * @param {Number} pos position of sign
     */
@@ -108,28 +108,25 @@ const Computations = function () {
 
         let result = 0;
         switch ( sign ) {
-            case SIGNS.multi: {
+            case SIGNS.multi:
                 result = +cpArr[pos-1] * (+cpArr[pos+1]);
                 break;
-            }
-            case SIGNS.div: {
+            case SIGNS.div:
                 result = +cpArr[pos-1] / (+cpArr[pos+1]);
                 break;
-            }
-            case SIGNS.add: {
+            case SIGNS.add:
                 result = +cpArr[pos-1] + (+cpArr[pos+1]);
                 break;
-            }
-            case SIGNS.sub: {
+            case SIGNS.sub:
                 result = +cpArr[pos-1] - (+cpArr[pos+1]);
                 break;
-            }
-            default: {
+            default:
                 //do nothing
-            }
         }
+        //remove these values what has been used
         cpArr[pos-1] = '';
         cpArr[pos]   = '';
+        //in the last one (3) save result
         cpArr[pos+1] = result;
         return cpArr;
     };

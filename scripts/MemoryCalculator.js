@@ -8,11 +8,11 @@ const MemoryCalculator = function ( calcElement ) {
     const closeMemoryBtn =  memoryCont.querySelector('.close-memory-calc');
 
     let setValue;
-    let stopExecuting = false;
+    let stopExecuting = false; // Stop executing superior(parent) triggered event
 
     const init = () => {
-        closeMemoryBtn.addEventListener('click',hideMemoryCont,false);
-        closeMemoryBtn.addEventListener('keydown',hideMemoryCont,false); // enable using keyboard
+        closeMemoryBtn.addEventListener('click', hideMemoryCont, false);
+        closeMemoryBtn.addEventListener('keydown', hideMemoryCont, false); // enable using keyboard
     };
     const setValueMethod = ( method ) => {
         setValue = method;
@@ -61,7 +61,7 @@ const MemoryCalculator = function ( calcElement ) {
         cell.classList.add('single-cell');
         cell.setAttribute('tabindex', 0);
         cell.addEventListener('click', loadMemoryIntoInput, false);
-        cell.addEventListener('keypress', loadMemoryIntoInput, false);// enter
+        cell.addEventListener('keypress', loadMemoryIntoInput, false);// catch enter key
 
         resultSpan.classList.add('memory-result');
         resultSpan.appendChild(resultNode);
@@ -70,7 +70,7 @@ const MemoryCalculator = function ( calcElement ) {
         removeCellSpan.setAttribute('tabindex', 0);
         removeCellSpan.appendChild(closeTextNode);
         removeCellSpan.addEventListener('click', removeSingleCell, false);
-        removeCellSpan.addEventListener('keypress', removeSingleCell, false);
+        removeCellSpan.addEventListener('keypress', removeSingleCell, false);// catch enter key
 
         cell.appendChild(resultSpan);
         cell.appendChild(removeCellSpan);
@@ -80,7 +80,7 @@ const MemoryCalculator = function ( calcElement ) {
     const removeSingleCell = ( evt ) => {
         const parent = evt.target.parentNode;
         const val = parent.dataset.value;
-        valuesInMemory.delete(+val); //parse into number
+        valuesInMemory.delete(+val); //parse into number and delete it
         parent.remove();
         closeMemoryBtn.focus();
         stopExecuting = true;
